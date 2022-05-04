@@ -22,8 +22,8 @@ public :
     FileStream();
     ~FileStream() {};
     
-    void read_from_file(const string& fileName);
-    void write_to_file(const string& fileName, const vector<Point>& nearPoints);
+    void read(const string& fileName);
+    void write(const string& fileName, const vector<Point>& nearPoints);
     
     vector<Point>& get_points();
 

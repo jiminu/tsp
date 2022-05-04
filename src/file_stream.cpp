@@ -7,7 +7,7 @@
 FileStream::FileStream() {
 }
 
-void FileStream::read_from_file(const string& fileName) {
+void FileStream::read(const string& fileName) {
     std:: ifstream file(fileName);
     int run = 0;
     string line;
@@ -30,7 +30,7 @@ void FileStream::read_from_file(const string& fileName) {
     }
 }
 
-void FileStream::write_to_file(const string& fileName, const vector<Point>& nearPoints) {
+void FileStream::write(const string& fileName, const vector<Point>& nearPoints) {
     std::ofstream fout(fileName);
     for (auto it = nearPoints.begin(); it != nearPoints.end(); it++) {
         fout << it->x << ", " << it->y << "\n";
