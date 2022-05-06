@@ -1,6 +1,6 @@
 #pragma once
 
-#include"point.h"
+#include"city.h"
 #include<string>
 #include<vector>
 #include<map>
@@ -15,7 +15,7 @@ using distance = float; // == typedef float distance
 class FileStream {
 private :
     // member variable
-    vector<Point> m_pointsVector;
+    vector<City> m_citiesVector;
 
 public :
     // method
@@ -23,11 +23,11 @@ public :
     ~FileStream() {};
     
     void read(const string& fileName);
-    void write(const string& fileName, const vector<Point>& nearPoints);
+    void write(const string& fileName, const vector<City>& nearPoints);
     
-    vector<Point>& get_points();
+    vector<City>& get_cities();
 
 private :
     // method
-    Point split_xy(const string& str);
+    City split_xy(const string& str);
 };

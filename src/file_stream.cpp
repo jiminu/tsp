@@ -20,7 +20,7 @@ void FileStream::read(const string& fileName) {
                 continue;
             }
             std::cout << line << std::endl;
-            m_pointsVector.push_back(split_xy(line));
+            m_citiesVector.push_back(split_xy(line));
         }
         file.close();
     }
@@ -30,7 +30,7 @@ void FileStream::read(const string& fileName) {
     }
 }
 
-void FileStream::write(const string& fileName, const vector<Point>& nearPoints) {
+void FileStream::write(const string& fileName, const vector<City>& nearPoints) {
     std::ofstream fout(fileName);
     for (auto it = nearPoints.begin(); it != nearPoints.end(); it++) {
         fout << it->x << ", " << it->y << "\n";
@@ -39,15 +39,15 @@ void FileStream::write(const string& fileName, const vector<Point>& nearPoints) 
     fout.close();
 }
 
-Point FileStream::split_xy(const string& str) {
-    Point point;
+City FileStream::split_xy(const string& str) {
+    City city;
     
-    point.x = std::stoi(str.substr(4, 3));
-    point.y = std::stoi(str.substr(8, 3));
+    city.x = std::stoi(str.substr(4, 3));
+    city.y = std::stoi(str.substr(8, 3));
     
-    return point;
+    return city;
 }
 
-vector<Point>& FileStream::get_points() {
-    return m_pointsVector;
+vector<City>& FileStream::get_cities() {
+    return m_citiesVector;
 }

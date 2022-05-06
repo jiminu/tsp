@@ -1,17 +1,17 @@
-#include"point.h"
+#include"city.h"
 #include<cmath>
 
-Point::Point() {
+City::City() {
     this->x = 0;
     this->y = 0;
 }
 
-Point::Point(const float& x, const float& y) {
+City::City(const float& x, const float& y) {
     this->x = x;
     this->y = y;
 }
 
-float Point::distance_to(const Point& p1) {
+float City::distance_to(const City& p1) {
     float distance;
 
     distance = sqrt(pow(this->x - p1.x, 2) + pow(this->y - p1.y, 2));
@@ -19,6 +19,6 @@ float Point::distance_to(const Point& p1) {
     return distance;
 }
 
-bool Point::operator==(const Point& rhs) const {
+bool City::operator==(const City& rhs) const {
     return (x == rhs.x && y == rhs.y);
 }
