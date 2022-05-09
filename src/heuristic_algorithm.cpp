@@ -5,7 +5,7 @@
 #include<map>
 #include<algorithm>
 
-using std::map;
+using std::multimap;
 using std::pair;
 using std::next_permutation;
 
@@ -54,34 +54,21 @@ vector<int> HeuristicAlgorithm::crossover(const vector<int>& gene1, const vector
     erase_value_from_edge(edge, currPos);
     offspring.push_back(currPos);
     
-    for(int i = 0; i < gene1.size(); ++i) {
-        if (i == 160) {
-            int w = 0;
-        }
-        map<int, int> candidate;
-        map<int, int> minusCandidate;
+    for(int i = 0; i < gene1.size() - 1; ++i) {
+        multimap<int, int> candidate;
         
         for (int hasEdgesTo = 0; hasEdgesTo < edge[currPos].size(); ++hasEdgesTo) {
-            int hasEdgesToNumber = edge[edge[currPos][hasEdgesTo]].size();
             int chromosome = edge[currPos][hasEdgesTo];
+            int hasEdgesToNumber = edge[abs(chromosome)].size();
             
-            if (chromosome >= 0) {
-                candidate.insert({hasEdgesToNumber, chromosome});
-            }
-            
-            else if (chromosome < 0) {
-                minusCandidate.insert({hasEdgesToNumber, chromosome});
-            }
+            // if (hasEdgesToNumber == 0) {
+            //     continue;
+            // }
+            candidate.insert({hasEdgesToNumber, chromosome});
         }
-        if (minusCandidate.size() > 0) {
-            offspring.push_back(abs(minusCandidate.begin()->second));
-            currPos = abs(minusCandidate.begin()->second);
-        }
-        
-        else {
-            offspring.push_back(candidate.begin()->second);
-            currPos = candidate.begin()->second;
-        }
+        offspring.push_back(abs(candidate.begin()->second));
+        currPos = abs(candidate.begin()->second);
+
         erase_value_from_edge(edge, currPos);
     }
     
@@ -119,6 +106,11 @@ void HeuristicAlgorithm::selection(const vector<vector<int>>& chromosomes) {
     for(int i = 0; i < chromosomes.size(); ++i) {
         evalValue.push_back(evaluation(chromosomes[i]));
     }
+    
+    vector<int> a = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19};
+    vector<int> b = {2,5,1,6,8,9,3,7,0,4,12,14,11,13,16,18,15,19,10,17};
+    
+    
     
     crossover(chromosomes[0], chromosomes[1]);
 }
