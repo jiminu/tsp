@@ -8,7 +8,7 @@ FileStream::FileStream() {
 }
 
 void FileStream::read(const string& fileName) {
-    std:: ifstream file(fileName);
+    std::ifstream file(fileName);
     int run = 0;
     string line;
     
@@ -19,7 +19,7 @@ void FileStream::read(const string& fileName) {
                 ++run;
                 continue;
             }
-            std::cout << line << std::endl;
+            // std::cout << line << std::endl;
             m_citiesVector.push_back(split_xy(line));
         }
         file.close();
@@ -30,12 +30,16 @@ void FileStream::read(const string& fileName) {
     }
 }
 
-void FileStream::write(const string& fileName, const vector<City>& nearPoints) {
+void FileStream::write(const string& fileName, const vector<int>& cities) {
     std::ofstream fout(fileName);
-    for (auto it = nearPoints.begin(); it != nearPoints.end(); it++) {
-        fout << it->x << ", " << it->y << "\n";
-    }
+    // for (auto it = cities.begin(); it != cities.end(); it++) {
+    //     fout << it->x << ", " << it->y << "\n";
+    // }
 
+    for (auto it = cities.begin(); it != cities.end(); it++) {
+        fout << *it << "\n";
+    }
+    
     fout.close();
 }
 

@@ -23,7 +23,7 @@ class HeuristicAlgorithm {
     
         double evaluation(const vector<int>& chromosome);
         void check_same_value(vector<int>& edge, const int& number);
-        void erase_value_from_edge(vector<vector<int>>& edge, const int& number);
+        void erase_value_from_edge(vector<vector<int>>& edge, const int& value);
         
         
         void generate_cities();

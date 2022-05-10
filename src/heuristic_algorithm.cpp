@@ -1,6 +1,10 @@
 #include "heuristic_algorithm.h"
 #include "file_stream.h"
 
+#include<iostream>
+#include<fstream>
+#include<sstream>
+
 #include<random>
 #include<map>
 #include<algorithm>
@@ -44,10 +48,10 @@ vector<int> HeuristicAlgorithm::crossover(const vector<int>& gene1, const vector
             next     = i + 1;
         }
 
-        check_same_value(edge[i], gene1[previous]);
-        check_same_value(edge[i], gene1[next]);
-        check_same_value(edge[i], gene2[previous]);
-        check_same_value(edge[i], gene2[next]);
+        check_same_value(edge[gene1[i]], gene1[previous]);
+        check_same_value(edge[gene1[i]], gene1[next]);
+        check_same_value(edge[gene2[i]], gene2[previous]);
+        check_same_value(edge[gene2[i]], gene2[next]);
     }
     
     int currPos = 0;
@@ -56,21 +60,37 @@ vector<int> HeuristicAlgorithm::crossover(const vector<int>& gene1, const vector
     
     for(int i = 0; i < gene1.size() - 1; ++i) {
         multimap<int, int> candidate;
+        multimap<int, int> minusCandidate;
         
         for (int hasEdgesTo = 0; hasEdgesTo < edge[currPos].size(); ++hasEdgesTo) {
             int chromosome = edge[currPos][hasEdgesTo];
             int hasEdgesToNumber = edge[abs(chromosome)].size();
             
-            // if (hasEdgesToNumber == 0) {
-            //     continue;
-            // }
-            candidate.insert({hasEdgesToNumber, chromosome});
-        }
-        offspring.push_back(abs(candidate.begin()->second));
-        currPos = abs(candidate.begin()->second);
+            if (chromosome >= 0) {
+                candidate.insert({hasEdgesToNumber, chromosome});
+            }
 
+            else if (chromosome < 0) {
+                minusCandidate.insert({hasEdgesToNumber, chromosome});
+            }
+        }
+        if (minusCandidate.size() > 0) {
+            offspring.push_back(abs(minusCandidate.begin()->second));
+            currPos = abs(minusCandidate.begin()->second);
+        }
+
+        else if (candidate.size() > 0) {
+            offspring.push_back(candidate.begin()->second);
+            currPos = candidate.begin()->second;
+        }
+        else {
+            for (const auto& it : edge) {
+                std::cout << *it.begin() << std::endl;
+            }
+        }
         erase_value_from_edge(edge, currPos);
     }
+
     
     return offspring;
 }
@@ -107,12 +127,37 @@ void HeuristicAlgorithm::selection(const vector<vector<int>>& chromosomes) {
         evalValue.push_back(evaluation(chromosomes[i]));
     }
     
-    vector<int> a = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19};
-    vector<int> b = {2,5,1,6,8,9,3,7,0,4,12,14,11,13,16,18,15,19,10,17};
+    vector<int> a;
+    vector<int> b;
+        
+    std::ifstream file("../data/tempData.txt");
+    string line;
+    
+    if(file) {
+        while(std::getline(file, line)) {
+            if (file.eof()) break;
+
+            // std::cout << line << std::endl;
+            a.push_back(std::stoi(line));
+        }
+        file.close();
+    }
+    std::ifstream file2("../data/tempData2.txt");
+    string line2;
+    
+    if(file2) {
+        while(std::getline(file2, line2)) {
+            if (file2.eof()) break;
+
+            // std::cout << line2 << std::endl;
+            b.push_back(std::stoi(line2));
+        }
+        file2.close();
+    }
     
     
     
-    crossover(chromosomes[0], chromosomes[1]);
+    crossover(a, b);
 }
 
 double HeuristicAlgorithm::evaluation(const vector<int>& chromosome) {
@@ -140,10 +185,10 @@ void HeuristicAlgorithm::check_same_value(vector<int>& edge, const int& number) 
     return;
 }
 
-void HeuristicAlgorithm::erase_value_from_edge(vector<vector<int>>& edge, const int& number) {
+void HeuristicAlgorithm::erase_value_from_edge(vector<vector<int>>& edge, const int& value) {
     for (int i = 0; i < edge.size(); ++i) {
         for (int hasEdgeTo = 0; hasEdgeTo < edge[i].size(); ++hasEdgeTo) {
-            if (abs(edge[i][hasEdgeTo]) == number) {
+            if (abs(edge[i][hasEdgeTo]) == value) {
                 edge[i].erase(edge[i].begin() + hasEdgeTo);
             }
         }
