@@ -8,6 +8,21 @@ int main(int, char**) {
         
     HeuristicAlgorithm heuristic;
     
+    // std::multimap<int, int> a;
+    
+    // a.insert({0,1});
+    // a.insert({0,2});
+    // a.insert({0,3});
+    
+    // std::multimap<int, int>::iterator itt = a.find(0);
+    // itt++;
+    // a.erase(itt);
+    
+    // for (auto it = a.begin(); it != a.end(); it++) {
+    //     std::cout << it->first << ", " << it->second << std::endl;
+    // }
+    
+    
     // vector<vector<int>> edge;
     // edge.resize(10);
     // edge[0].push_back(1);
