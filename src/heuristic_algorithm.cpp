@@ -268,9 +268,14 @@ void HeuristicAlgorithm::check_same_value(multimap<int, int>& edge, const int& p
 void HeuristicAlgorithm::erase_value_from_edge(multimap<int, int>& edge, const int& value) {
     for (auto it = edge.begin(); it != edge.end(); ++it) {
         if (it->second == value) {
-            edge.erase(it);
+            edge.erase(it++);
         }
     }
+    // for (auto it : edge) {
+    //     if (it.second == value) {
+    //         edge.erase(it);
+    //     }
+    // }
     
     edge.erase(value);
 }
