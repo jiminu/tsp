@@ -53,9 +53,16 @@ vector<int> HeuristicAlgorithm::crossover(const vector<int>& gene1, const vector
         check_same_value(edge, gene2[i], gene2[next]);
     }
     
+    for (auto it = edge.begin(); it != edge.end(); ++it) {
+        // std::cout << it->first << " : " << it->second << std::endl;
+    }
+    
+    int prePos = 0;
     int currPos = 0;
     erase_value_from_edge(edge, currPos);
     offspring.push_back(currPos);
+    
+    vector<int> test;
     
     for(int i = 0; i < gene1.size() - 1; ++i) {
         multimap<int, int> candidate;
@@ -74,23 +81,60 @@ vector<int> HeuristicAlgorithm::crossover(const vector<int>& gene1, const vector
             }
         }
         
+        // for (int q : test) {
+        //     if (currPos == q) {
+        //         std::cout << i << " : " << currPos << std::endl;
+        //     }
+        // }
+        
+        int preA;
+        int curA;
+        int count = 0;
+        for (auto ip = edge.begin(); ip != edge.end(); ++ip) {
+            curA = ip->first;
+            
+            if (preA != curA) {
+                ++count;
+                preA = curA;
+            }
+        }
+        
+        std::cout << "i : " << i << " key : " << currPos << " count : " << count << std::endl;
+        // if(count == 184)
+        // {
+        //     for ( auto qq = edge.begin(); qq != edge.end(); ++qq) {
+        //         std::cout << qq->first << std::endl;
+        //     }
+        // }
+        
+        
+        // for ( auto qq = edge.lower_bound(currPos); qq != edge.upper_bound(currPos); ++qq) {
+        //     std::cout << qq->first << " : " << qq->second << std::endl;
+        // }
+        
+        edge.erase(currPos);
+        test.push_back(currPos);
+
         if (minusCandidate.size() > 0) {
-            offspring.push_back(abs(minusCandidate.begin()->second));
             currPos = abs(minusCandidate.begin()->second);
         }
 
         else if (candidate.size() > 0) {
-            offspring.push_back(candidate.begin()->second);
             currPos = candidate.begin()->second;
         }
+        
         else {
             currPos = edge.begin()->first;
-            offspring.push_back(currPos);
         }
+        for (int j = 0; j < offspring.size(); ++j) {
+            if (offspring[j] == currPos) {
+                // std::cout << i << " : " << currPos << std::endl;
+            }
+        }
+        offspring.push_back(currPos);
         erase_value_from_edge(edge, currPos);
     }
 
-    
     return offspring;
 }
 // vector<int> HeuristicAlgorithm::crossover(const vector<int>& gene1, const vector<int>& gene2) {
@@ -266,18 +310,46 @@ void HeuristicAlgorithm::check_same_value(multimap<int, int>& edge, const int& p
 
 // FIXME: erase function
 void HeuristicAlgorithm::erase_value_from_edge(multimap<int, int>& edge, const int& value) {
-    for (auto it = edge.begin(); it != edge.end(); ++it) {
-        if (it->second == value) {
-            edge.erase(it++);
+    int preA;
+    int curA;
+    int count = 0;
+    for (auto ip = edge.begin(); ip != edge.end(); ++ip) {
+        curA = ip->first;
+        if (preA != curA) {
+            ++count;
+            preA = curA;
         }
     }
+    std::cout << "before inside cnt: " << count << std::endl;
+    if(count == 182){
+        std::cout<<"bug"<<std::endl;
+    }
+    
+    for (auto it = edge.begin(); it != edge.end();) {
+        if (abs(it->second) == value) {
+            edge.erase(it++);
+        }
+        else it++;
+    }
+    preA = 0;
+    curA = 0;
+    count = 0;
+    for (auto ip = edge.begin(); ip != edge.end(); ++ip) {
+        curA = ip->first;
+        if (preA != curA) {
+            ++count;
+            preA = curA;
+        }
+    }
+    std::cout << "after inside cnt: " << count << std::endl;
+    
+
     // for (auto it : edge) {
     //     if (it.second == value) {
     //         edge.erase(it);
     //     }
     // }
     
-    edge.erase(value);
 }
 // void HeuristicAlgorithm::erase_value_from_edge(vector<vector<int>>& edge, const int& value) {
 //     for (int i = 0; i < edge.size(); ++i) {
