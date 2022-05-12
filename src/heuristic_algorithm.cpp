@@ -9,7 +9,7 @@
 #include<map>
 #include<algorithm>
 
-using std::multimap;
+using std::map;
 using std::pair;
 using std::next_permutation;
 
@@ -28,9 +28,8 @@ HeuristicAlgorithm::~HeuristicAlgorithm() {
 
 // improved edge recombination crossover
 vector<int> HeuristicAlgorithm::crossover(const vector<int>& gene1, const vector<int>& gene2) {
-    multimap<int, int> edge;
-    
-    vector<int> offspring;
+    map<int, vector<int>> edge;
+    vector<int>           offspring;
     
     for(int i = 0; i < gene1.size(); ++i) {
         int previous, next;
@@ -47,73 +46,34 @@ vector<int> HeuristicAlgorithm::crossover(const vector<int>& gene1, const vector
             next     = i + 1;
         }
 
-        check_same_value(edge, gene1[i], gene1[previous]);
-        check_same_value(edge, gene1[i], gene1[next]);
-        check_same_value(edge, gene2[i], gene2[previous]);
-        check_same_value(edge, gene2[i], gene2[next]);
+        check_same_value(edge[gene1[i]], gene1[previous]);
+        check_same_value(edge[gene1[i]], gene1[next]);
+        check_same_value(edge[gene2[i]], gene2[previous]);
+        check_same_value(edge[gene2[i]], gene2[next]);
     }
     
-    for (auto it = edge.begin(); it != edge.end(); ++it) {
-        // std::cout << it->first << " : " << it->second << std::endl;
-    }
-    
-    int prePos = 0;
     int currPos = 0;
     erase_value_from_edge(edge, currPos);
     offspring.push_back(currPos);
-    
-    vector<int> test;
     
     for(int i = 0; i < gene1.size() - 1; ++i) {
         multimap<int, int> candidate;
         multimap<int, int> minusCandidate;
         
-        for (auto it = edge.lower_bound(currPos); it != edge.upper_bound(currPos); ++it) {
-            int chromosome = it->second;
-            int hasEdgesToNumber = edge.count(it->first);
-
+        for (int n = 0; n < edge[currPos].size(); ++n) {
+            int chromosome = edge[currPos][n];
+            int hasEdgesToNumber = edge[abs(chromosome)].size();
+            
             if (chromosome >= 0) {
                 candidate.insert({hasEdgesToNumber, chromosome});
             }
-
+            
             else if (chromosome < 0) {
                 minusCandidate.insert({hasEdgesToNumber, chromosome});
             }
         }
         
-        // for (int q : test) {
-        //     if (currPos == q) {
-        //         std::cout << i << " : " << currPos << std::endl;
-        //     }
-        // }
-        
-        int preA;
-        int curA;
-        int count = 0;
-        for (auto ip = edge.begin(); ip != edge.end(); ++ip) {
-            curA = ip->first;
-            
-            if (preA != curA) {
-                ++count;
-                preA = curA;
-            }
-        }
-        
-        std::cout << "i : " << i << " key : " << currPos << " count : " << count << std::endl;
-        // if(count == 184)
-        // {
-        //     for ( auto qq = edge.begin(); qq != edge.end(); ++qq) {
-        //         std::cout << qq->first << std::endl;
-        //     }
-        // }
-        
-        
-        // for ( auto qq = edge.lower_bound(currPos); qq != edge.upper_bound(currPos); ++qq) {
-        //     std::cout << qq->first << " : " << qq->second << std::endl;
-        // }
-        
         edge.erase(currPos);
-        test.push_back(currPos);
 
         if (minusCandidate.size() > 0) {
             currPos = abs(minusCandidate.begin()->second);
@@ -126,84 +86,20 @@ vector<int> HeuristicAlgorithm::crossover(const vector<int>& gene1, const vector
         else {
             currPos = edge.begin()->first;
         }
-        for (int j = 0; j < offspring.size(); ++j) {
-            if (offspring[j] == currPos) {
-                // std::cout << i << " : " << currPos << std::endl;
-            }
-        }
         offspring.push_back(currPos);
         erase_value_from_edge(edge, currPos);
     }
+    
+    map<int, int> test;
+    
+    for (int i = 0; i < offspring.size(); ++i) {
+        test.insert({offspring[i], i});
+    }
+    
+    test.insert({0, 11});
 
     return offspring;
 }
-// vector<int> HeuristicAlgorithm::crossover(const vector<int>& gene1, const vector<int>& gene2) {
-//     vector<vector<int>> edge;
-//     edge.resize(gene1.size());
-    
-//     vector<int> offspring;
-    
-//     for(int i = 0; i < gene1.size(); ++i) {
-//         int previous, next;
-//         if (i == 0) {
-//             previous = gene1.size() - 1;
-//             next     = i + 1;
-//         }
-//         else if (i == gene1.size() - 1) {
-//             previous = i - 1;
-//             next     = 0;
-//         }
-//         else {
-//             previous = i - 1;
-//             next     = i + 1;
-//         }
-
-//         check_same_value(edge[gene1[i]], gene1[previous]);
-//         check_same_value(edge[gene1[i]], gene1[next]);
-//         check_same_value(edge[gene2[i]], gene2[previous]);
-//         check_same_value(edge[gene2[i]], gene2[next]);
-//     }
-    
-//     int currPos = 0;
-//     erase_value_from_edge(edge, currPos);
-//     offspring.push_back(currPos);
-    
-//     for(int i = 0; i < gene1.size() - 1; ++i) {
-//         multimap<int, int> candidate;
-//         multimap<int, int> minusCandidate;
-        
-//         for (int hasEdgesTo = 0; hasEdgesTo < edge[currPos].size(); ++hasEdgesTo) {
-//             int chromosome = edge[currPos][hasEdgesTo];
-//             int hasEdgesToNumber = edge[abs(chromosome)].size();
-            
-//             if (chromosome >= 0) {
-//                 candidate.insert({hasEdgesToNumber, chromosome});
-//             }
-
-//             else if (chromosome < 0) {
-//                 minusCandidate.insert({hasEdgesToNumber, chromosome});
-//             }
-//         }
-//         if (minusCandidate.size() > 0) {
-//             offspring.push_back(abs(minusCandidate.begin()->second));
-//             currPos = abs(minusCandidate.begin()->second);
-//         }
-
-//         else if (candidate.size() > 0) {
-//             offspring.push_back(candidate.begin()->second);
-//             currPos = candidate.begin()->second;
-//         }
-//         else {
-//             for (const auto& it : edge) {
-//                 std::cout << *it.begin() << std::endl;
-//             }
-//         }
-//         erase_value_from_edge(edge, currPos);
-//     }
-
-    
-//     return offspring;
-// }
 
 vector<vector<int>> HeuristicAlgorithm::initialize_chromosome(const int& population) {
     vector<vector<int>> chromosomes;
@@ -285,81 +181,27 @@ double HeuristicAlgorithm::evaluation(const vector<int>& chromosome) {
     return result;
 }
 
-void HeuristicAlgorithm::check_same_value(multimap<int, int>& edge, const int& position, const int& value) {
-    for (auto it = edge.lower_bound(position); it != edge.upper_bound(position); ++it) {
-        if (abs(it->second) == value) {
-            it->second = abs(value) * -1;
+void HeuristicAlgorithm::check_same_value(vector<int>& edge, const int& value) {
+    for (int i = 0; i < edge.size(); ++i) {
+        if (abs(edge[i]) == abs(value)) {
+            edge[i] = abs(edge[i]) * -1;
             return;
         }
     }
-    edge.insert({position, value});
+    
+    edge.push_back(value);
     return;
 }
-
-// void HeuristicAlgorithm::check_same_value(vector<int>& edge, const int& number) {
-//     for (int i = 0; i < edge.size(); ++i) {
-//         if (abs(edge[i]) == number) {
-//             edge[i] = abs(number) * -1;
-//             return;
-//         }
-//     }
-//     edge.push_back(number);
-//     return;
-// }
-
-
 // FIXME: erase function
-void HeuristicAlgorithm::erase_value_from_edge(multimap<int, int>& edge, const int& value) {
-    int preA;
-    int curA;
-    int count = 0;
-    for (auto ip = edge.begin(); ip != edge.end(); ++ip) {
-        curA = ip->first;
-        if (preA != curA) {
-            ++count;
-            preA = curA;
+void HeuristicAlgorithm::erase_value_from_edge(map<int, vector<int>>& edge, const int& value) {
+    for (auto it = edge.begin(); it != edge.end(); ++it) {
+        for (int i = 0; i < it->second.size(); ++i) {
+            if (abs(it->second[i]) == value) {
+                it->second.erase(it->second.begin() + i);
+            }
         }
     }
-    std::cout << "before inside cnt: " << count << std::endl;
-    if(count == 182){
-        std::cout<<"bug"<<std::endl;
-    }
-    
-    for (auto it = edge.begin(); it != edge.end();) {
-        if (abs(it->second) == value) {
-            edge.erase(it++);
-        }
-        else it++;
-    }
-    preA = 0;
-    curA = 0;
-    count = 0;
-    for (auto ip = edge.begin(); ip != edge.end(); ++ip) {
-        curA = ip->first;
-        if (preA != curA) {
-            ++count;
-            preA = curA;
-        }
-    }
-    std::cout << "after inside cnt: " << count << std::endl;
-    
-
-    // for (auto it : edge) {
-    //     if (it.second == value) {
-    //         edge.erase(it);
-    //     }
-    // }
-    
 }
-// void HeuristicAlgorithm::erase_value_from_edge(vector<vector<int>>& edge, const int& value) {
-//     for (int i = 0; i < edge.size(); ++i) {
-//         for (int hasEdgeTo = 0; hasEdgeTo < edge[i].size(); ++hasEdgeTo) {
-//             if (abs(edge[i][hasEdgeTo]) == value) {
-//                 edge[i].erase(edge[i].begin() + hasEdgeTo);
-//             }
-//         }
-//     }
-// }
 
 void HeuristicAlgorithm::generate_cities() {
     string tspFile = "../data/tsp_data.txt";

@@ -5,7 +5,7 @@
 #include "city.h"
 
 using std::vector;
-using std::multimap;
+using std::map;
 
 class HeuristicAlgorithm {
     private:
@@ -24,9 +24,9 @@ class HeuristicAlgorithm {
         vector<vector<int>> initialize_chromosome(const int& population);
     
         double evaluation(const vector<int>& chromosome);
-        void check_same_value(multimap<int, int>& edge, const int& position, const int& value);
+        void check_same_value(vector<int>& edge, const int& value);
         // void check_same_value(vector<int>& edge, const int& number);
-        void erase_value_from_edge(multimap<int, int>& edge, const int& value);
+        void erase_value_from_edge(map<int, vector<int>>& edge, const int& value);
         // void erase_value_from_edge(vector<vector<int>>& edge, const int& value);
         
         

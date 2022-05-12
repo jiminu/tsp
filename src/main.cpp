@@ -1,12 +1,12 @@
 #include <iostream>
 #include "heuristic_algorithm.h"
-#include<map>
 int main(int, char**) {
 
     const int population = 100;
     
         
     HeuristicAlgorithm heuristic;
+
     
     // std::multimap<int, int> a;
     
