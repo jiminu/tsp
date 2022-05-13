@@ -6,30 +6,36 @@
 
 using std::vector;
 using std::map;
+using std::pair;
 
 class HeuristicAlgorithm {
     private:
         vector<City> m_cities;
+        
+        float m_crossoverParameter = 0.7;
+        float m_mutationParameter = 0.001;
 
     
     public:
-        HeuristicAlgorithm();  
+        HeuristicAlgorithm(const int& populationNumber);  
         ~HeuristicAlgorithm();  
         
         
-    
-        void selection(const vector<vector<int>>& chromosomes);
-        vector<int> crossover(const vector<int>& gene1, const vector<int>& gene2);
     private:
         vector<vector<int>> initialize_chromosome(const int& population);
+        vector<pair<float, vector<int>>> selection(const vector<pair<float, vector<int>>>& chromosomes);
+        vector<pair<float, vector<int>>> evaluation(const vector<vector<int>>& populations);
+        vector<pair<float, vector<int>>> crossover(vector<pair<float, vector<int>>>& selectionPopulations);
+        vector<vector<int>> mutation(vector<pair<float, vector<int>>>& crossoverPopulations);
     
-        double evaluation(const vector<int>& chromosome);
         void check_same_value(vector<int>& edge, const int& value);
-        // void check_same_value(vector<int>& edge, const int& number);
         void erase_value_from_edge(map<int, vector<int>>& edge, const int& value);
-        // void erase_value_from_edge(vector<vector<int>>& edge, const int& value);
-        
+        vector<pair<float, vector<int>>*> select_parents(vector<pair<float, vector<int>>>& selectionPopulations);
+        float evaluate_function(const vector<int>& population);
         
         void generate_cities();
+        
+        int generate_random_int(const int& min, const int& max);
+        float generate_random_float(const float& min, const float& max);
         
 };

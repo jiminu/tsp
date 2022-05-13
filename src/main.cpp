@@ -2,10 +2,10 @@
 #include "heuristic_algorithm.h"
 int main(int, char**) {
 
-    const int population = 100;
+    const int populationNumber = 100;
     
         
-    HeuristicAlgorithm heuristic;
+    HeuristicAlgorithm heuristic(populationNumber);
 
     
     // std::multimap<int, int> a;
