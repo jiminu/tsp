@@ -18,7 +18,7 @@ HeuristicAlgorithm::HeuristicAlgorithm(const int& populationNumber) {
     vector<pair<float, vector<int>>> evaluationResult = evaluation(populations);
     vector<pair<float, vector<int>>> selectionPopulations = selection(evaluationResult);
     vector<pair<float, vector<int>>> crossoverPopulations = crossover(selectionPopulations);
-    
+        
     int b = 0;
 }
 
@@ -28,6 +28,34 @@ HeuristicAlgorithm::~HeuristicAlgorithm() {
 
 // improved edge recombination crossover
 vector<pair<float, vector<int>>> HeuristicAlgorithm::crossover(vector<pair<float, vector<int>>>& selectionPopulations) {
+        vector<int> a;
+        vector<int> b;
+        
+    std::ifstream file("../data/tempData.txt");
+    string line;
+    
+    if(file) {
+        while(std::getline(file, line)) {
+            if (file.eof()) break;
+
+            a.push_back(std::stoi(line));
+        }
+        file.close();
+    }
+    std::ifstream file2("../data/tempData2.txt");
+    string line2;
+    
+    if(file2) {
+        while(std::getline(file2, line2)) {
+            if (file2.eof()) break;
+
+            b.push_back(std::stoi(line2));
+        }
+        file2.close();
+    }
+    
+    
+    
     vector<int> selectChromosome;
     
     map<int, vector<int>> edge;
@@ -35,9 +63,11 @@ vector<pair<float, vector<int>>> HeuristicAlgorithm::crossover(vector<pair<float
     vector<pair<float, vector<int>>*> selectParents = select_parents(selectionPopulations);
     
     while (selectParents.size() > 1) {
-        vector<int> gene1 = selectParents[selectParents.size()-2]->second;
-        vector<int> gene2 = selectParents[selectParents.size()-1]->second;
-
+        vector<int> gene1 = a;
+        vector<int> gene2 = b;
+        pair<float, vector<int>> offspring1;
+        pair<float, vector<int>> offspring2;
+        
         for (int i = 0; i < gene1.size(); ++i) {
             int previous, next;
             if (i == 0) {
@@ -66,6 +96,7 @@ vector<pair<float, vector<int>>> HeuristicAlgorithm::crossover(vector<pair<float
             for (int i = 0; i < gene1.size() - 1; ++i) {
                 multimap<int, int> candidate;
                 multimap<int, int> minusCandidate;
+           
 
                 for (int n = 0; n < edge[currPos].size(); ++n) {
                     int chromosome = edge[currPos][n];
@@ -83,13 +114,16 @@ vector<pair<float, vector<int>>> HeuristicAlgorithm::crossover(vector<pair<float
                 edge.erase(currPos);
 
                 if (minusCandidate.size() > 0) {
-                    auto it = minusCandidate.begin();
-                    if (it->first == (it++)->first) {
-                        int num = generate_random_int(0, 1);
-                        if (num == 0) {
-                            currPos = abs(it->second);
-                        } else {
-                            currPos = abs(minusCandidate.begin()->second);
+                    if (minusCandidate.size() > 1) {
+                        auto it = minusCandidate.begin();
+                        if (it->first == (++it)->first) {
+                            int num = generate_random_int(0, 1);
+                            if (num == 0) {
+                                currPos = abs(it->second);
+                            } 
+                            else {
+                                currPos = abs(minusCandidate.begin()->second);
+                            }
                         }
                     } 
                     else {
@@ -98,16 +132,18 @@ vector<pair<float, vector<int>>> HeuristicAlgorithm::crossover(vector<pair<float
                 }
 
                 else if (candidate.size() > 0) {
-                    auto it = candidate.begin();
-                    if (it->first == (it++)->first) {
-                        int num = generate_random_int(0, 1);
-                        if (num == 0) {
-                            currPos = abs(it->second);
-                        } else {
-                            currPos = abs(candidate.begin()->second);
+                    if (candidate.size() > 1) {
+                        auto it = candidate.begin();
+                        if (it->first == (++it)->first) {
+                            int num = generate_random_int(0, 1);
+                            if (num == 0) {
+                                currPos = abs(it->second);
+                            } 
+                            else {
+                                currPos = abs(candidate.begin()->second);
+                            }
                         }
                     }
-                    
                     else {
                         currPos = abs(candidate.begin()->second);
                     }
@@ -120,14 +156,14 @@ vector<pair<float, vector<int>>> HeuristicAlgorithm::crossover(vector<pair<float
                 erase_value_from_edge(edge, currPos);
             }
             if (start == 0) {
-                pair<float, vector<int>> offspring1 = {evaluate_function(offspring), offspring};
-                *selectParents[selectParents.size()-2] = offspring1;
+                offspring1 = {evaluate_function(offspring), offspring};
             } 
             else {
-                pair<float, vector<int>> offspring2 = {evaluate_function(offspring), offspring};
-                *selectParents[selectParents.size()-1] = offspring2;
+                offspring2 = {evaluate_function(offspring), offspring};
             }
         }
+        *selectParents[selectParents.size() - 2] = offspring1;
+        *selectParents[selectParents.size() - 1] = offspring2;
         selectParents.pop_back();
         selectParents.pop_back();
     }
