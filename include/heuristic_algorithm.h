@@ -12,6 +12,7 @@ class HeuristicAlgorithm {
     private:
         vector<City> m_cities;
         
+        const float m_selectionPressure = 3;
         const float m_crossoverParameter = 0.9;
         const float m_mutationParameter = 0.03;
         const int m_population = 200;

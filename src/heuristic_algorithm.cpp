@@ -39,38 +39,7 @@ HeuristicAlgorithm::~HeuristicAlgorithm() {
 }
 
 // improved edge recombination crossover
-vector<pair<float, vector<int>>> HeuristicAlgorithm::crossover(vector<pair<float, vector<int>>>& selectionPopulations) {
-        vector<int> a;
-        vector<int> b;
-        
-    std::ifstream file("../data/tempData.txt");
-    string line;
-    
-    if(file) {
-        while(std::getline(file, line)) {
-            if (file.eof()) break;
-
-            a.push_back(std::stoi(line));
-        }
-        file.close();
-    }
-    std::ifstream file2("../data/tempData2.txt");
-    string line2;
-    
-    if(file2) {
-        while(std::getline(file2, line2)) {
-            if (file2.eof()) break;
-
-            b.push_back(std::stoi(line2));
-        }
-        file2.close();
-    }
-    
-    
-    
-    vector<int> selectChromosome;
-    
-    
+vector<pair<float, vector<int>>> HeuristicAlgorithm::crossover(vector<pair<float, vector<int>>>& selectionPopulations) { 
     vector<pair<float, vector<int>>*> selectParents = select_parents(selectionPopulations);
     
     while (selectParents.size() > 1) {
@@ -243,22 +212,41 @@ vector<pair<float, vector<int>>> HeuristicAlgorithm::initialize_chromosome(const
 
 vector<pair<float, vector<int>>> HeuristicAlgorithm::selection(const vector<pair<float, vector<int>>>& chromosomes) {
     vector<pair<float, vector<int>>> selectionChromosome;
-    float max = 0;
+    map<float, vector<int>> test;
+    float maxFitness = 0;
+    float bestFitness = 0;
+    float worstFitness = 0;
+    
     for (auto it = chromosomes.begin(); it != chromosomes.end(); ++it) {
-        max += 1 / it->first;
+        test.insert({it->first, it->second});
     }
     
+    bestFitness = test.begin()->first;
+    worstFitness = test.rbegin()->first;
+    
+    for (auto it = chromosomes.begin(); it != chromosomes.end(); ++it) {
+        maxFitness += (1/worstFitness - 1/it->first) + ((1/worstFitness - 1/bestFitness) / (m_selectionPressure - 1));
+    }
+    
+    // for (auto it = chromosomes.begin(); it != chromosomes.end(); ++it) {
+    //     maxFitness += 1 / it->first;
+    //     if (worstFitness < it->first) worstFitness = it->first;
+    //     if (bestFitness > it->first || bestFitness == 0) bestFitness = it->first;
+    // }
+    
     for (int i = 0; i < chromosomes.size(); ++i) {
-        float randomNumber = generate_random_float(0, max);
-        float preRange = 0;
+        float randomNumber = generate_random_float(0, maxFitness);
+        float sum          = 0;
         
         for (auto it = chromosomes.begin(); it != chromosomes.end(); ++it) {
-            
-            if (preRange <= randomNumber && randomNumber < preRange + (1 / it->first)) {
+            float fitness = (1/worstFitness - 1/it->first) + ((1/worstFitness - 1/bestFitness) / (m_selectionPressure - 1));
+
+            sum += 1 / it->first;
+
+            if (randomNumber < sum) {
                 selectionChromosome.push_back({it->first, it->second});
                 break;
             }
-            preRange += 1 / it->first;
         }
     }
     
