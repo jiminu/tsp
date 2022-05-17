@@ -12,14 +12,26 @@
 using std::map;
 using std::next_permutation;
 
-HeuristicAlgorithm::HeuristicAlgorithm(const int& populationNumber) {
+HeuristicAlgorithm::HeuristicAlgorithm() {
     generate_cities();
-    vector<vector<int>> populations = initialize_chromosome(populationNumber);
-    vector<pair<float, vector<int>>> evaluationResult = evaluation(populations);
-    vector<pair<float, vector<int>>> selectionPopulations = selection(evaluationResult);
-    vector<pair<float, vector<int>>> crossoverPopulations = crossover(selectionPopulations);
+    vector<pair<float, vector<int>>> populations = initialize_chromosome(m_population);
+    for (int i = 0; i < 100000; ++i) {
+        // vector<pair<float, vector<int>>> evaluationResult = evaluation(populations);
+        populations = selection(populations);
+        populations = crossover(populations);
+        // populations = mutation(populations);
+        // // vector<pair<float, vector<int>>> evaluationResult = evaluation(populations);
+        // vector<pair<float, vector<int>>> selectionPopulations = selection(populations);
+        // vector<pair<float, vector<int>>> crossoverPopulations = crossover(selectionPopulations);
+        // vector<pair<float, vector<int>>> mutationPopulations = mutation(crossoverPopulations);
         
-    int b = 0;
+        std::cout << "Generation " << i << " : " << find_best_fitness(populations).first << std::endl;
+    }
+    std::cout << "fitness : " << m_bestSolution.first << std::endl;
+    for (const auto& it : m_bestSolution.second) {
+        std::cout << it << " -> ";
+    }
+    std::cout << m_bestSolution.second[0] << std::endl;
 }
 
 HeuristicAlgorithm::~HeuristicAlgorithm() {
@@ -58,38 +70,41 @@ vector<pair<float, vector<int>>> HeuristicAlgorithm::crossover(vector<pair<float
     
     vector<int> selectChromosome;
     
-    map<int, vector<int>> edge;
     
     vector<pair<float, vector<int>>*> selectParents = select_parents(selectionPopulations);
     
     while (selectParents.size() > 1) {
-        vector<int> gene1 = a;
-        vector<int> gene2 = b;
+        // vector<int> gene1 = a;
+        // vector<int> gene2 = b;
+        vector<int> gene1 = selectParents[selectParents.size()-2]->second;
+        vector<int> gene2 = selectParents[selectParents.size()-1]->second;
         pair<float, vector<int>> offspring1;
-        pair<float, vector<int>> offspring2;
-        
-        for (int i = 0; i < gene1.size(); ++i) {
-            int previous, next;
-            if (i == 0) {
-                previous = gene1.size() - 1;
-                next = i + 1;
-            } else if (i == gene1.size() - 1) {
-                previous = i - 1;
-                next = 0;
-            } else {
-                previous = i - 1;
-                next = i + 1;
-            }
-
-            check_same_value(edge[gene1[i]], gene1[previous]);
-            check_same_value(edge[gene1[i]], gene1[next]);
-            check_same_value(edge[gene2[i]], gene2[previous]);
-            check_same_value(edge[gene2[i]], gene2[next]);
-        }
+        pair<float, vector<int>> offspring2;   
 
         for (int start = 0; start < 2; ++start) {
+            // ------------- make edge
+            map<int, vector<int>> edge;
+            for (int i = 0; i < gene1.size(); ++i) {
+                int previous, next;
+                if (i == 0) {
+                    previous = gene1.size() - 1;
+                    next = i + 1;
+                } else if (i == gene1.size() - 1) {
+                    previous = i - 1;
+                    next = 0;
+                } else {
+                    previous = i - 1;
+                    next = i + 1;
+                }
+
+                check_same_value(edge[gene1[i]], gene1[previous]);
+                check_same_value(edge[gene1[i]], gene1[next]);
+                check_same_value(edge[gene2[i]], gene2[previous]);
+                check_same_value(edge[gene2[i]], gene2[next]);
+            }
+            // ------------- make edge
             vector<int> offspring;
-            int currPos = 0;
+            int currPos = generate_random_int(0, gene1.size()-1);
             erase_value_from_edge(edge, currPos);
             offspring.push_back(currPos);
 
@@ -125,6 +140,9 @@ vector<pair<float, vector<int>>> HeuristicAlgorithm::crossover(vector<pair<float
                                 currPos = abs(minusCandidate.begin()->second);
                             }
                         }
+                        else {
+                            currPos = abs(minusCandidate.begin()->second);
+                        }
                     } 
                     else {
                         currPos = abs(minusCandidate.begin()->second);
@@ -143,6 +161,9 @@ vector<pair<float, vector<int>>> HeuristicAlgorithm::crossover(vector<pair<float
                                 currPos = abs(candidate.begin()->second);
                             }
                         }
+                        else {
+                             currPos = abs(candidate.begin()->second);
+                        }
                     }
                     else {
                         currPos = abs(candidate.begin()->second);
@@ -157,9 +178,11 @@ vector<pair<float, vector<int>>> HeuristicAlgorithm::crossover(vector<pair<float
             }
             if (start == 0) {
                 offspring1 = {evaluate_function(offspring), offspring};
+                inversion_mutation(offspring1);
             } 
             else {
                 offspring2 = {evaluate_function(offspring), offspring};
+                inversion_mutation(offspring2);
             }
         }
         *selectParents[selectParents.size() - 2] = offspring1;
@@ -170,8 +193,34 @@ vector<pair<float, vector<int>>> HeuristicAlgorithm::crossover(vector<pair<float
     return selectionPopulations;
 }
 
-vector<vector<int>> HeuristicAlgorithm::initialize_chromosome(const int& population) {
-    vector<vector<int>> chromosomes;
+vector<pair<float, vector<int>>> HeuristicAlgorithm::mutation(vector<pair<float, vector<int>>>& crossoverPopulations) {
+    int count = 0;
+    for (auto& it : crossoverPopulations) {
+        count++;
+        float randomNum = generate_random_float(0, 1);
+        if (randomNum <= m_mutationParameter) {
+            int start = generate_random_int(0, it.second.size() - 1);
+            int end = generate_random_int(start, it.second.size() - 1);
+            std::reverse(it.second.begin() + start, it.second.begin() + end);
+            it.first = evaluate_function(it.second);
+        }
+    }
+    
+    return crossoverPopulations;
+}
+
+void HeuristicAlgorithm::inversion_mutation(pair<float, vector<int>>& crossoverPopulations) {
+    float randomProb = generate_random_float(0, 1);
+    if (randomProb < m_mutationParameter) {
+        int start = generate_random_int(0, crossoverPopulations.second.size() - 1);
+        int end = generate_random_int(start, crossoverPopulations.second.size() - 1);
+        std::reverse(crossoverPopulations.second.begin() + start, crossoverPopulations.second.begin() + end);
+        crossoverPopulations.first = evaluate_function(crossoverPopulations.second);
+    }    
+}
+
+vector<pair<float, vector<int>>> HeuristicAlgorithm::initialize_chromosome(const int& population) {
+    vector<pair<float, vector<int>>> chromosomes;
     vector<int> chromosome;
     for (int i = 0; i < m_cities.size(); ++i) {
         chromosome.push_back(i);
@@ -183,9 +232,10 @@ vector<vector<int>> HeuristicAlgorithm::initialize_chromosome(const int& populat
         vector<int> tempVector = chromosome;
         for (int j = 0; j < chromosome.size(); ++j) {
             int num = generate_random_int(0, tempVector.size() - 1);
-            chromosomes[i].push_back(tempVector[num]);
+            chromosomes[i].second.push_back(tempVector[num]);
             tempVector.erase(tempVector.begin() + num);
         }
+        chromosomes[i].first = evaluate_function(chromosomes[i].second);
     }
     
     return chromosomes;
@@ -291,6 +341,23 @@ void HeuristicAlgorithm::erase_value_from_edge(map<int, vector<int>>& edge, cons
     }
 }
 
+// vector<pair<float, vector<int>>*> HeuristicAlgorithm::select_parents(vector<pair<float, vector<int>>>& selectionPopulations) {
+//     vector<pair<float, vector<int>>*> result;
+//     float max = 0;
+//     for (auto it = selectionPopulations.begin(); it != selectionPopulations.end(); ++it) {
+//         max += 1 / it->first;
+//     }
+    
+//     for (auto& chromosome : selectionPopulations) {
+//         float randomNum = generate_random_float(0, max);
+//         if (randomNum <= m_crossoverParameter) {
+//             result.push_back(&chromosome);
+//         }
+//     }
+    
+//     return result;
+// }
+
 vector<pair<float, vector<int>>*> HeuristicAlgorithm::select_parents(vector<pair<float, vector<int>>>& selectionPopulations) {
     vector<pair<float, vector<int>>*> result;
 
@@ -299,10 +366,23 @@ vector<pair<float, vector<int>>*> HeuristicAlgorithm::select_parents(vector<pair
         if (randomNum <= m_crossoverParameter) {
             result.push_back(&chromosome);
         }
+        else if (chromosome.first <= m_bestSolution.first) {
+            result.push_back(&chromosome);
+        }
     }
     
     return result;
 }
+
+ pair<float, vector<int>> HeuristicAlgorithm::find_best_fitness(const vector<pair<float, vector<int>>>& populations) {
+     for (const auto& it : populations) {
+         if (it.first < m_bestSolution.first || m_bestSolution.first == 0) {
+             m_bestSolution = it;
+         }
+     }
+     return m_bestSolution;
+ }
+
 
 void HeuristicAlgorithm::generate_cities() {
     string tspFile = "../data/tsp_data.txt";
@@ -310,9 +390,6 @@ void HeuristicAlgorithm::generate_cities() {
     FileStream file;
     file.read(tspFile);
     m_cities = file.get_cities();
-    
-    
-    
 }
 
 int HeuristicAlgorithm::generate_random_int(const int& min, const int& max) {
