@@ -13,9 +13,9 @@ class HeuristicAlgorithm {
         vector<City> m_cities;
         
         const float m_selectionPressure = 3;
-        const float m_crossoverParameter = 0.9;
-        const float m_mutationParameter = 0.03;
-        const int m_population = 200;
+        const float m_crossoverParameter = 0.7;
+        const float m_mutationParameter = 0.05;
+        const int m_population = 1000;
                 
         pair<float, vector<int>> m_bestSolution = {0, {}};
 
@@ -38,6 +38,7 @@ class HeuristicAlgorithm {
         void erase_value_from_edge(map<int, vector<int>>& edge, const int& value);
         vector<pair<float, vector<int>>*> select_parents(vector<pair<float, vector<int>>>& selectionPopulations);
         float evaluate_function(const vector<int>& population);
+        void save_best_solution(const pair<float, vector<int>>& bestSolution);
         
         pair<float, vector<int>> find_best_fitness(const vector<pair<float, vector<int>>>& populations);
         

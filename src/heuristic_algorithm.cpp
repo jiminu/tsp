@@ -15,7 +15,7 @@ using std::next_permutation;
 HeuristicAlgorithm::HeuristicAlgorithm() {
     generate_cities();
     vector<pair<float, vector<int>>> populations = initialize_chromosome(m_population);
-    for (int i = 0; i < 100000; ++i) {
+    for (int i = 0; i < 10000; ++i) {
         // vector<pair<float, vector<int>>> evaluationResult = evaluation(populations);
         populations = selection(populations);
         populations = crossover(populations);
@@ -225,7 +225,7 @@ vector<pair<float, vector<int>>> HeuristicAlgorithm::selection(const vector<pair
     worstFitness = test.rbegin()->first;
     
     for (auto it = chromosomes.begin(); it != chromosomes.end(); ++it) {
-        maxFitness += (1/worstFitness - 1/it->first) + ((1/worstFitness - 1/bestFitness) / (m_selectionPressure - 1));
+        maxFitness += (worstFitness - it->first) + ((worstFitness - bestFitness) / (m_selectionPressure - 1));
     }
     
     // for (auto it = chromosomes.begin(); it != chromosomes.end(); ++it) {
@@ -239,9 +239,9 @@ vector<pair<float, vector<int>>> HeuristicAlgorithm::selection(const vector<pair
         float sum          = 0;
         
         for (auto it = chromosomes.begin(); it != chromosomes.end(); ++it) {
-            float fitness = (1/worstFitness - 1/it->first) + ((1/worstFitness - 1/bestFitness) / (m_selectionPressure - 1));
+            float fitness = (worstFitness - it->first) + ((worstFitness - bestFitness) / (m_selectionPressure - 1));
 
-            sum += 1 / it->first;
+            sum += fitness;
 
             if (randomNumber < sum) {
                 selectionChromosome.push_back({it->first, it->second});
@@ -378,6 +378,13 @@ void HeuristicAlgorithm::generate_cities() {
     FileStream file;
     file.read(tspFile);
     m_cities = file.get_cities();
+}
+
+void HeuristicAlgorithm::save_best_solution(const pair<float, vector<int>>& bestSolution) {
+    string savePath = "../data/result.txt";
+    
+    FileStream file;
+    file.write(savePath, m_bestSolution);
 }
 
 int HeuristicAlgorithm::generate_random_int(const int& min, const int& max) {
