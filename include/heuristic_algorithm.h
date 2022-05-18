@@ -38,7 +38,7 @@ class HeuristicAlgorithm {
         void erase_value_from_edge(map<int, vector<int>>& edge, const int& value);
         vector<pair<float, vector<int>>*> select_parents(vector<pair<float, vector<int>>>& selectionPopulations);
         float evaluate_function(const vector<int>& population);
-        void save_best_solution(const pair<float, vector<int>>& bestSolution);
+        void save_best_solution();
         
         pair<float, vector<int>> find_best_fitness(const vector<pair<float, vector<int>>>& populations);
         

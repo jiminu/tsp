@@ -15,7 +15,7 @@ using std::next_permutation;
 HeuristicAlgorithm::HeuristicAlgorithm() {
     generate_cities();
     vector<pair<float, vector<int>>> populations = initialize_chromosome(m_population);
-    for (int i = 0; i < 10000; ++i) {
+    for (int i = 0; i < 100; ++i) {
         // vector<pair<float, vector<int>>> evaluationResult = evaluation(populations);
         populations = selection(populations);
         populations = crossover(populations);
@@ -32,6 +32,7 @@ HeuristicAlgorithm::HeuristicAlgorithm() {
         std::cout << it << " -> ";
     }
     std::cout << m_bestSolution.second[0] << std::endl;
+    save_best_solution();
 }
 
 HeuristicAlgorithm::~HeuristicAlgorithm() {
@@ -380,7 +381,7 @@ void HeuristicAlgorithm::generate_cities() {
     m_cities = file.get_cities();
 }
 
-void HeuristicAlgorithm::save_best_solution(const pair<float, vector<int>>& bestSolution) {
+void HeuristicAlgorithm::save_best_solution() {
     string savePath = "../data/result.txt";
     
     FileStream file;
