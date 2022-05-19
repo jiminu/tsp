@@ -7,20 +7,24 @@
 using std::vector;
 using std::map;
 using std::pair;
+using std::string;
 
 class HeuristicAlgorithm {
     private:
         vector<City> m_cities;
         
-        const float m_selectionPressure = 3;
-        const float m_crossoverParameter = 0.7;
-        const float m_mutationParameter = 0.05;
+        const float m_selectionPressure = 3.5;
+        const float m_crossoverParameter = 0.6;
+        const float m_mutationParameter = 0.1;
         const int m_population = 1000;
+        const int m_generation = 10000;
                 
         pair<float, vector<int>> m_bestSolution = {0, {}};
 
-    
-    public:
+        string m_tspFile = "./../data/tsp_data.txt";
+        string m_savePath = "./../data/result.txt";
+
+       public:
         HeuristicAlgorithm();  
         ~HeuristicAlgorithm();  
         

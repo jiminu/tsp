@@ -30,12 +30,17 @@ void FileStream::read(const string& fileName) {
     }
 }
 
-void FileStream::write(const string& fileName, const pair<float, vector<int>>& bestSolution) {
+void FileStream::write(const string& fileName, const pair<float, vector<int>>& bestSolution, const vector<float>& info) {
     std::ofstream fout(fileName);
     // for (auto it = cities.begin(); it != cities.end(); it++) {
     //     fout << it->x << ", " << it->y << "\n";
     // }
-    fout << bestSolution.first << "\n";
+    fout << "fitness : " << bestSolution.first << "\n";
+    fout << "selection pressure : " << info[0] << "\n";
+    fout << "crossover parameter : " << info[1] << "\n";
+    fout << "mutation parameter : " << info[2] << "\n";
+    fout << "population : " << info[3] << "\n";
+    fout << "generation : " << info[4] << "\n";
     for (auto it = bestSolution.second.begin(); it != bestSolution.second.end(); it++) {
         fout << *it << "\n";
     }

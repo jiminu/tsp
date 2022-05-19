@@ -23,7 +23,7 @@ public :
     ~FileStream() {};
     
     void read(const string& fileName);
-    void write(const string& fileName, const pair<float, vector<int>>& bestSolution);
+    void write(const string& fileName, const pair<float, vector<int>>& bestSolution, const vector<float>& info);
     
     vector<City>& get_cities();
 

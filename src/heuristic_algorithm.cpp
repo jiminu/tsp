@@ -12,10 +12,10 @@
 using std::map;
 using std::next_permutation;
 
-HeuristicAlgorithm::HeuristicAlgorithm() {
+HeuristicAlgorithm::HeuristicAlgorithm() {    
     generate_cities();
     vector<pair<float, vector<int>>> populations = initialize_chromosome(m_population);
-    for (int i = 0; i < 100; ++i) {
+    for (int i = 0; i < m_generation; ++i) {
         // vector<pair<float, vector<int>>> evaluationResult = evaluation(populations);
         populations = selection(populations);
         populations = crossover(populations);
@@ -374,18 +374,15 @@ vector<pair<float, vector<int>>*> HeuristicAlgorithm::select_parents(vector<pair
 
 
 void HeuristicAlgorithm::generate_cities() {
-    string tspFile = "../data/tsp_data.txt";
-    
     FileStream file;
-    file.read(tspFile);
+    file.read(m_tspFile);
     m_cities = file.get_cities();
 }
 
-void HeuristicAlgorithm::save_best_solution() {
-    string savePath = "../data/result.txt";
-    
+void HeuristicAlgorithm::save_best_solution() {    
     FileStream file;
-    file.write(savePath, m_bestSolution);
+    vector<float> info = {m_selectionPressure, m_crossoverParameter, m_mutationParameter, float(m_population), float(m_generation)};
+    file.write(m_savePath, m_bestSolution, info);
 }
 
 int HeuristicAlgorithm::generate_random_int(const int& min, const int& max) {

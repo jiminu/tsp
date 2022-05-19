@@ -3,9 +3,10 @@ import numpy as np
 import math
 
 def read_point(name) :
+    path = '/home/jiminu/code/heuristic/data/tsp_data.txt'
     li = []
     i = 0
-    with open (name, 'r') as f :
+    with open (path, 'r') as f :
         for line in f :
             if line == 'EOF' :
                 break
@@ -20,15 +21,17 @@ def read_point(name) :
     return li
 
 def read_answer(name) :
+    path = '/home/jiminu/code/heuristic/data/result.txt'
     li = []
     i = 0
-    with open (name, 'r') as f :
+    with open (path, 'r') as f :
         for line in f :
-            if i < 1 :
+            if i < 6 :
+                i += 1
                 continue
             li.append([])
             x = line
-            li[-1].append(float(x))
+            li[-1].append(int(x))
     return li
 
 def draw_coordinate(_list, _c = 'black', _s = 5) :
