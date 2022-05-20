@@ -3,7 +3,9 @@
 int main(int, char**) {    
         
     HeuristicAlgorithm heuristic;
-
+    
+    
+    
     
     // std::multimap<int, int> a;
     

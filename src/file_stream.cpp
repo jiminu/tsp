@@ -41,6 +41,7 @@ void FileStream::write(const string& fileName, const pair<float, vector<int>>& b
     fout << "mutation parameter : " << info[2] << "\n";
     fout << "population : " << info[3] << "\n";
     fout << "generation : " << info[4] << "\n";
+    fout << "time : " << info[5] << "\n";
     for (auto it = bestSolution.second.begin(); it != bestSolution.second.end(); it++) {
         fout << *it << "\n";
     }

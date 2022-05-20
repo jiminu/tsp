@@ -21,18 +21,20 @@ def read_point(name) :
     return li
 
 def read_answer(name) :
-    path = '/home/jiminu/code/heuristic/data/result.txt'
+    path = '/home/jiminu/code/heuristic/data/' + name
     li = []
+    info = []
     i = 0
     with open (path, 'r') as f :
         for line in f :
-            if i < 6 :
+            if i < 7 :
                 i += 1
+                info.append(line)
                 continue
             li.append([])
             x = line
             li[-1].append(int(x))
-    return li
+    return info, li
 
 def draw_coordinate(_list, _c = 'black', _s = 5) :
     xli = []

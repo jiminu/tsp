@@ -4,6 +4,7 @@
 #include<iostream>
 #include<fstream>
 #include<sstream>
+#include<time.h>
 
 #include<random>
 #include<map>
@@ -12,7 +13,11 @@
 using std::map;
 using std::next_permutation;
 
-HeuristicAlgorithm::HeuristicAlgorithm() {    
+HeuristicAlgorithm::HeuristicAlgorithm() {
+    clock_t start, end;
+    float result;
+    
+    start = clock();
     generate_cities();
     vector<pair<float, vector<int>>> populations = initialize_chromosome(m_population);
     for (int i = 0; i < m_generation; ++i) {
@@ -27,12 +32,27 @@ HeuristicAlgorithm::HeuristicAlgorithm() {
         
         std::cout << "Generation " << i << " : " << find_best_fitness(populations).first << std::endl;
     }
+    end = clock();
+    result = end - start;
+    vector<float> info = {m_selectionPressure, m_crossoverParameter, m_mutationParameter, float(m_population), float(m_generation), result / CLOCKS_PER_SEC};
+    
     std::cout << "fitness : " << m_bestSolution.first << std::endl;
     for (const auto& it : m_bestSolution.second) {
         std::cout << it << " -> ";
     }
     std::cout << m_bestSolution.second[0] << std::endl;
-    save_best_solution();
+    std::cout << "runtime : " << result / CLOCKS_PER_SEC << "s" << std::endl;
+    save_best_solution(info);
+    
+    for (auto it : populations) {
+        map<int, int> test;
+        for (auto pop : it.second) {
+            auto check = test.insert({pop, 0});
+            if (!check.second) {
+                std::cout << "same!!!!! : " << pop << std::endl;
+            }
+        }
+    }
 }
 
 HeuristicAlgorithm::~HeuristicAlgorithm() {
@@ -148,11 +168,13 @@ vector<pair<float, vector<int>>> HeuristicAlgorithm::crossover(vector<pair<float
             }
             if (start == 0) {
                 offspring1 = {evaluate_function(offspring), offspring};
-                inversion_mutation(offspring1);
+                displacement_mutation(offspring1);
+                // inversion_mutation(offspring1);
             } 
             else {
                 offspring2 = {evaluate_function(offspring), offspring};
-                inversion_mutation(offspring2);
+                displacement_mutation(offspring2);
+                // inversion_mutation(offspring2);
             }
         }
         *selectParents[selectParents.size() - 2] = offspring1;
@@ -187,6 +209,22 @@ void HeuristicAlgorithm::inversion_mutation(pair<float, vector<int>>& crossoverP
         std::reverse(crossoverPopulations.second.begin() + start, crossoverPopulations.second.begin() + end);
         crossoverPopulations.first = evaluate_function(crossoverPopulations.second);
     }    
+}
+
+void HeuristicAlgorithm::displacement_mutation(pair<float, vector<int>>& crossoverPopulations) {
+    float randomProb = generate_random_float(0, 1);
+    if (randomProb < m_mutationParameter) {
+        int start = generate_random_int(0, crossoverPopulations.second.size() - 1);
+        int end = generate_random_int(start, crossoverPopulations.second.size() - 1);
+        vector<int> temp;
+        temp.assign(crossoverPopulations.second.begin()+start, crossoverPopulations.second.begin()+end);
+        crossoverPopulations.second.erase(crossoverPopulations.second.begin()+start, crossoverPopulations.second.begin()+end);
+        
+        int position = generate_random_int(0, crossoverPopulations.second.size() - 1);
+        crossoverPopulations.second.insert(crossoverPopulations.second.begin() + position, temp.begin(), temp.end());
+        
+        crossoverPopulations.first = evaluate_function(crossoverPopulations.second);
+    }   
 }
 
 vector<pair<float, vector<int>>> HeuristicAlgorithm::initialize_chromosome(const int& population) {
@@ -379,9 +417,9 @@ void HeuristicAlgorithm::generate_cities() {
     m_cities = file.get_cities();
 }
 
-void HeuristicAlgorithm::save_best_solution() {    
+void HeuristicAlgorithm::save_best_solution(const vector<float>& info) {    
     FileStream file;
-    vector<float> info = {m_selectionPressure, m_crossoverParameter, m_mutationParameter, float(m_population), float(m_generation)};
+    m_savePath = m_savePath + std::to_string(m_bestSolution.first) + ".txt";
     file.write(m_savePath, m_bestSolution, info);
 }
 
