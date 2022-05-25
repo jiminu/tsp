@@ -13,11 +13,11 @@ class HeuristicAlgorithm {
     private:
         vector<City> m_cities;
         
-        const float m_selectionPressure = 4;
-        const float m_crossoverParameter = 0.6;
+        const float m_selectionPressure = 3;
+        const float m_crossoverParameter = 0.7;
         const float m_mutationParameter = 0.2;
-        const int m_population = 500;
-        const int m_generation = 10000;
+        const int m_population = 1000;
+        const int m_generation = 1000000;
                 
         pair<float, vector<int>> m_bestSolution = {0, {}};
 
@@ -36,6 +36,7 @@ class HeuristicAlgorithm {
         vector<pair<float, vector<int>>> crossover(vector<pair<float, vector<int>>>& selectionPopulations);
         vector<pair<float, vector<int>>> mutation(vector<pair<float, vector<int>>>& crossoverPopulations);
         
+        void insertion_mutation(pair<float, vector<int>>& crossoverPopulations);
         void inversion_mutation(pair<float, vector<int>>& crossoverPopulations);
         void displacement_mutation(pair<float, vector<int>>& crossoverPopulations);
     

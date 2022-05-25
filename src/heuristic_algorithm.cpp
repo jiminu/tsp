@@ -168,13 +168,15 @@ vector<pair<float, vector<int>>> HeuristicAlgorithm::crossover(vector<pair<float
             }
             if (start == 0) {
                 offspring1 = {evaluate_function(offspring), offspring};
-                displacement_mutation(offspring1);
-                // inversion_mutation(offspring1);
+                // insertion_mutation(offspring1);
+                // displacement_mutation(offspring1);
+                inversion_mutation(offspring1);
             } 
             else {
                 offspring2 = {evaluate_function(offspring), offspring};
-                displacement_mutation(offspring2);
-                // inversion_mutation(offspring2);
+                // insertion_mutation(offspring2);
+                // displacement_mutation(offspring2);
+                inversion_mutation(offspring2);
             }
         }
         *selectParents[selectParents.size() - 2] = offspring1;
@@ -207,6 +209,22 @@ void HeuristicAlgorithm::inversion_mutation(pair<float, vector<int>>& crossoverP
         int start = generate_random_int(0, crossoverPopulations.second.size() - 1);
         int end = generate_random_int(start, crossoverPopulations.second.size() - 1);
         std::reverse(crossoverPopulations.second.begin() + start, crossoverPopulations.second.begin() + end);
+        crossoverPopulations.first = evaluate_function(crossoverPopulations.second);
+    }    
+}
+
+void HeuristicAlgorithm::insertion_mutation(pair<float, vector<int>>& crossoverPopulations) {
+    float randomProb = generate_random_float(0, 1);
+    if (randomProb < m_mutationParameter) {
+        int start = generate_random_int(0, crossoverPopulations.second.size() - 1);
+        int end = start + 1;
+        vector<int> temp;
+        temp.assign(crossoverPopulations.second.begin()+start, crossoverPopulations.second.begin()+end);
+        crossoverPopulations.second.erase(crossoverPopulations.second.begin()+start, crossoverPopulations.second.begin()+end);
+        
+        int position = generate_random_int(0, crossoverPopulations.second.size() - 1);
+        crossoverPopulations.second.insert(crossoverPopulations.second.begin() + position, temp.begin(), temp.end());
+        
         crossoverPopulations.first = evaluate_function(crossoverPopulations.second);
     }    
 }
@@ -272,8 +290,12 @@ vector<pair<float, vector<int>>> HeuristicAlgorithm::selection(const vector<pair
     //     if (worstFitness < it->first) worstFitness = it->first;
     //     if (bestFitness > it->first || bestFitness == 0) bestFitness = it->first;
     // }
+    auto it = test.begin();
+    selectionChromosome.push_back({it->first, it->second});
+    it++;
+    selectionChromosome.push_back({it->first, it->second});
     
-    for (int i = 0; i < chromosomes.size(); ++i) {
+    for (int i = 0; i < chromosomes.size() - 2; ++i) {
         float randomNumber = generate_random_float(0, maxFitness);
         float sum          = 0;
         

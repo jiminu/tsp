@@ -4,7 +4,7 @@ import plt_lib as pl
 
 if __name__ == '__main__' :
     read_city_path = '.\\..\\data\\tsp_data.txt'
-    result_file = 'result.txt'
+    result_file = '14852.099609.txt'
     city = draw.read_point(read_city_path)
     # print(city)
     draw.draw_coordinate(city)
