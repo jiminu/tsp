@@ -11,7 +11,6 @@ using std::string;
 
 class HeuristicAlgorithm {
     private:
-        vector<City> m_cities;
         
         const float m_selectionPressure  = 3;
         const float m_crossoverParameter = 0.7;
@@ -21,12 +20,15 @@ class HeuristicAlgorithm {
         const float m_eliteProportion    = 0.2;
         const string m_mutation          = "inversion";
                 
-        pair<float, vector<int>> m_bestSolution = {0, {}};
 
         string m_tspFile  = "./../data/tsp_data.txt";
         string m_savePath = "./../data/";
         string m_saveFile = m_mutation + ".txt";
     
+
+    
+        vector<City> m_cities;
+        pair<float, vector<int>> m_bestSolution = {0, {}};
         int m_currGeneration = 0;
 
     public:
@@ -46,18 +48,16 @@ class HeuristicAlgorithm {
         void insertion_mutation(pair<float, vector<int>>& crossoverPopulations);
         void inversion_mutation(pair<float, vector<int>>& crossoverPopulations);
         void displacement_mutation(pair<float, vector<int>>& crossoverPopulations);
-    
+
         void check_same_value(vector<int>& edge, const int& value);
         void erase_value_from_edge(map<int, vector<int>>& edge, const int& value);
         vector<pair<float, vector<int>>*> select_parents(vector<pair<float, vector<int>>>& selectionPopulations);
         float evaluate_function(const vector<int>& population);
         void save_best_solution(const vector<float>& info);
-        
+
         pair<float, vector<int>> find_best_fitness(const vector<pair<float, vector<int>>>& populations);
-        
+
         void generate_cities();
-        
         int generate_random_int(const int& min, const int& max);
         float generate_random_float(const float& min, const float& max);
-        
 };
