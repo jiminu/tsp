@@ -26,6 +26,5 @@ if __name__ == '__main__' :
     
     print(result_line)
     pl.draw_2d_line(result_line)
-    image_file = info[0][10:-1]
-    image_file += '.png'
-    plt.savefig(image_file)
+    image_file = info[0][10:-1] + '.png'
+    plt.savefig(f'data/{image_file}')
