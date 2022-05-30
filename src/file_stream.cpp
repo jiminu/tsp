@@ -40,8 +40,9 @@ void FileStream::write(const string& fileName, const pair<float, vector<int>>& b
     fout << "crossover parameter : " << info[1] << "\n";
     fout << "mutation parameter : " << info[2] << "\n";
     fout << "population : " << info[3] << "\n";
-    fout << "generation : " << info[4] << "\n";
-    fout << "time : " << info[5] << "\n";
+    fout << "elite proportion : " << info[4] << "\n";
+    fout << "generation : " << info[5] << "\n";
+    fout << "time : " << info[6] << "\n";
     for (auto it = bestSolution.second.begin(); it != bestSolution.second.end(); it++) {
         fout << *it << "\n";
     }

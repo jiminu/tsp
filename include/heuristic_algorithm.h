@@ -13,18 +13,23 @@ class HeuristicAlgorithm {
     private:
         vector<City> m_cities;
         
-        const float m_selectionPressure = 3;
+        const float m_selectionPressure  = 3;
         const float m_crossoverParameter = 0.7;
-        const float m_mutationParameter = 0.2;
-        const int m_population = 1000;
-        const int m_generation = 1000000;
+        const float m_mutationParameter  = 0.2;
+        const int m_population           = 100;
+        const int m_generation           = 100000;
+        const float m_eliteProportion    = 0.2;
+        const string m_mutation          = "inversion";
                 
         pair<float, vector<int>> m_bestSolution = {0, {}};
 
-        string m_tspFile = "./../data/tsp_data.txt";
+        string m_tspFile  = "./../data/tsp_data.txt";
         string m_savePath = "./../data/";
+        string m_saveFile = m_mutation + ".txt";
+    
+        int m_currGeneration = 0;
 
-       public:
+    public:
         HeuristicAlgorithm();  
         ~HeuristicAlgorithm();  
         
@@ -34,7 +39,9 @@ class HeuristicAlgorithm {
         vector<pair<float, vector<int>>> selection(const vector<pair<float, vector<int>>>& chromosomes);
         vector<pair<float, vector<int>>> evaluation(const vector<vector<int>>& populations);
         vector<pair<float, vector<int>>> crossover(vector<pair<float, vector<int>>>& selectionPopulations);
-        vector<pair<float, vector<int>>> mutation(vector<pair<float, vector<int>>>& crossoverPopulations);
+        void mutation(pair<float, vector<int>>& offspring);
+        
+        void order_crossover(vector<pair<float, vector<int>>>& selectionPopulations);
         
         void insertion_mutation(pair<float, vector<int>>& crossoverPopulations);
         void inversion_mutation(pair<float, vector<int>>& crossoverPopulations);

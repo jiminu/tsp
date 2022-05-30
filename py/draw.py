@@ -27,7 +27,7 @@ def read_answer(name) :
     i = 0
     with open (path, 'r') as f :
         for line in f :
-            if i < 7 :
+            if i < 8 :
                 i += 1
                 info.append(line)
                 continue

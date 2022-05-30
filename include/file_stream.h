@@ -7,7 +7,6 @@
 
 using std::string;
 using std::vector;
-using std::multimap;
 using std::map;
 using std::pair;
 using distance = float; // == typedef float distance

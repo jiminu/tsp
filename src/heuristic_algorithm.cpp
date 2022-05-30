@@ -1,16 +1,17 @@
 #include "heuristic_algorithm.h"
+
+#include <time.h>
+
+#include <algorithm>
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <random>
+#include <sstream>
+
 #include "file_stream.h"
 
-#include<iostream>
-#include<fstream>
-#include<sstream>
-#include<time.h>
-
-#include<random>
-#include<map>
-#include<algorithm>
-
-using std::map;
+using std::multimap;
 using std::next_permutation;
 
 HeuristicAlgorithm::HeuristicAlgorithm() {
@@ -21,20 +22,21 @@ HeuristicAlgorithm::HeuristicAlgorithm() {
     generate_cities();
     vector<pair<float, vector<int>>> populations = initialize_chromosome(m_population);
     for (int i = 0; i < m_generation; ++i) {
-        // vector<pair<float, vector<int>>> evaluationResult = evaluation(populations);
         populations = selection(populations);
         populations = crossover(populations);
-        // populations = mutation(populations);
-        // // vector<pair<float, vector<int>>> evaluationResult = evaluation(populations);
-        // vector<pair<float, vector<int>>> selectionPopulations = selection(populations);
-        // vector<pair<float, vector<int>>> crossoverPopulations = crossover(selectionPopulations);
-        // vector<pair<float, vector<int>>> mutationPopulations = mutation(crossoverPopulations);
         
+        m_currGeneration = i;
         std::cout << "Generation " << i << " : " << find_best_fitness(populations).first << std::endl;
     }
     end = clock();
     result = end - start;
-    vector<float> info = {m_selectionPressure, m_crossoverParameter, m_mutationParameter, float(m_population), float(m_generation), result / CLOCKS_PER_SEC};
+    vector<float> info = {m_selectionPressure, 
+                          m_crossoverParameter, 
+                          m_mutationParameter, 
+                          float(m_population), 
+                          float(m_generation),
+                          m_eliteProportion, 
+                          result / CLOCKS_PER_SEC};
     
     std::cout << "fitness : " << m_bestSolution.first << std::endl;
     for (const auto& it : m_bestSolution.second) {
@@ -64,8 +66,6 @@ vector<pair<float, vector<int>>> HeuristicAlgorithm::crossover(vector<pair<float
     vector<pair<float, vector<int>>*> selectParents = select_parents(selectionPopulations);
     
     while (selectParents.size() > 1) {
-        // vector<int> gene1 = a;
-        // vector<int> gene2 = b;
         vector<int> gene1 = selectParents[selectParents.size()-2]->second;
         vector<int> gene2 = selectParents[selectParents.size()-1]->second;
         pair<float, vector<int>> offspring1;
@@ -102,7 +102,6 @@ vector<pair<float, vector<int>>> HeuristicAlgorithm::crossover(vector<pair<float
                 multimap<int, int> candidate;
                 multimap<int, int> minusCandidate;
            
-
                 for (int n = 0; n < edge[currPos].size(); ++n) {
                     int chromosome = edge[currPos][n];
                     int hasEdgesToNumber = edge[abs(chromosome)].size();
@@ -168,15 +167,11 @@ vector<pair<float, vector<int>>> HeuristicAlgorithm::crossover(vector<pair<float
             }
             if (start == 0) {
                 offspring1 = {evaluate_function(offspring), offspring};
-                // insertion_mutation(offspring1);
-                // displacement_mutation(offspring1);
-                inversion_mutation(offspring1);
+                mutation(offspring1);
             } 
             else {
                 offspring2 = {evaluate_function(offspring), offspring};
-                // insertion_mutation(offspring2);
-                // displacement_mutation(offspring2);
-                inversion_mutation(offspring2);
+                mutation(offspring2);
             }
         }
         *selectParents[selectParents.size() - 2] = offspring1;
@@ -187,20 +182,34 @@ vector<pair<float, vector<int>>> HeuristicAlgorithm::crossover(vector<pair<float
     return selectionPopulations;
 }
 
-vector<pair<float, vector<int>>> HeuristicAlgorithm::mutation(vector<pair<float, vector<int>>>& crossoverPopulations) {
-    int count = 0;
-    for (auto& it : crossoverPopulations) {
-        count++;
-        float randomNum = generate_random_float(0, 1);
-        if (randomNum <= m_mutationParameter) {
-            int start = generate_random_int(0, it.second.size() - 1);
-            int end = generate_random_int(start, it.second.size() - 1);
-            std::reverse(it.second.begin() + start, it.second.begin() + end);
-            it.first = evaluate_function(it.second);
-        }
+void HeuristicAlgorithm::order_crossover(vector<pair<float, vector<int>>>& selectionPopulations) {
+    vector<pair<float, vector<int>>*> selectParents = select_parents(selectionPopulations);
+
+    while (selectParents.size() > 1) {
+        vector<int> gene1 = selectParents[selectParents.size() - 2]->second;
+        vector<int> gene2 = selectParents[selectParents.size() - 1]->second;
+        pair<float, vector<int>> offspring1;
+        pair<float, vector<int>> offspring2;
+        
+        int start = generate_random_int(0, gene1.size() - 1);
+        int end = generate_random_int(start, gene1.size() - 1);
+        
+        vector<int> temp;
+        temp.assign(gene1.begin()+start, gene1.begin()+end);
     }
-    
-    return crossoverPopulations;
+}
+
+
+void HeuristicAlgorithm::mutation(pair<float, vector<int>>& offspring) {
+    if (m_mutation == "inversion") {
+        inversion_mutation(offspring);
+    }
+    else if (m_mutation == "insertion") {
+        insertion_mutation(offspring);
+    }
+    else if (m_mutation == "displacement") {
+        displacement_mutation(offspring);
+    }    
 }
 
 void HeuristicAlgorithm::inversion_mutation(pair<float, vector<int>>& crossoverPopulations) {
@@ -269,33 +278,34 @@ vector<pair<float, vector<int>>> HeuristicAlgorithm::initialize_chromosome(const
 
 vector<pair<float, vector<int>>> HeuristicAlgorithm::selection(const vector<pair<float, vector<int>>>& chromosomes) {
     vector<pair<float, vector<int>>> selectionChromosome;
-    map<float, vector<int>> test;
+    multimap<float, vector<int>> sortedPopulation;
     float maxFitness = 0;
     float bestFitness = 0;
     float worstFitness = 0;
     
     for (auto it = chromosomes.begin(); it != chromosomes.end(); ++it) {
-        test.insert({it->first, it->second});
+        sortedPopulation.insert({it->first, it->second});
     }
     
-    bestFitness = test.begin()->first;
-    worstFitness = test.rbegin()->first;
+    bestFitness = sortedPopulation.begin()->first;
+    worstFitness = sortedPopulation.rbegin()->first;
     
     for (auto it = chromosomes.begin(); it != chromosomes.end(); ++it) {
         maxFitness += (worstFitness - it->first) + ((worstFitness - bestFitness) / (m_selectionPressure - 1));
     }
     
-    // for (auto it = chromosomes.begin(); it != chromosomes.end(); ++it) {
-    //     maxFitness += 1 / it->first;
-    //     if (worstFitness < it->first) worstFitness = it->first;
-    //     if (bestFitness > it->first || bestFitness == 0) bestFitness = it->first;
-    // }
-    auto it = test.begin();
-    selectionChromosome.push_back({it->first, it->second});
-    it++;
-    selectionChromosome.push_back({it->first, it->second});
+    auto it = sortedPopulation.begin();
+
+    int eliteProportion = m_population * m_eliteProportion;
+    while(selectionChromosome.size() < eliteProportion && it != sortedPopulation.end()) {
+        if (selectionChromosome.size() == 0 || selectionChromosome.rbegin()->first != it->first) {
+            selectionChromosome.push_back({it->first, it->second});
+        }
+        it++;
+    }
+    int endP = selectionChromosome.size();
     
-    for (int i = 0; i < chromosomes.size() - 2; ++i) {
+    for (int i = 0; i < chromosomes.size() - endP; ++i) {
         float randomNumber = generate_random_float(0, maxFitness);
         float sum          = 0;
         
@@ -312,34 +322,6 @@ vector<pair<float, vector<int>>> HeuristicAlgorithm::selection(const vector<pair
     }
     
     return selectionChromosome;
-
-    // vector<int> b;
-        
-    // std::ifstream file("../data/tempData.txt");
-    // string line;
-    
-    // if(file) {
-    //     while(std::getline(file, line)) {
-    //         if (file.eof()) break;
-
-    //         a.push_back(std::stoi(line));
-    //     }
-    //     file.close();
-    // }
-    // std::ifstream file2("../data/tempData2.txt");
-    // string line2;
-    
-    // if(file2) {
-    //     while(std::getline(file2, line2)) {
-    //         if (file2.eof()) break;
-
-    //         b.push_back(std::stoi(line2));
-    //     }
-    //     file2.close();
-    // }
-    
-    // crossover(a, b);
-    // crossover(chromosomes[0], chromosomes[1]);
 }
 
 vector<pair<float, vector<int>>> HeuristicAlgorithm::evaluation(const vector<vector<int>>& populations) {
@@ -390,23 +372,6 @@ void HeuristicAlgorithm::erase_value_from_edge(map<int, vector<int>>& edge, cons
     }
 }
 
-// vector<pair<float, vector<int>>*> HeuristicAlgorithm::select_parents(vector<pair<float, vector<int>>>& selectionPopulations) {
-//     vector<pair<float, vector<int>>*> result;
-//     float max = 0;
-//     for (auto it = selectionPopulations.begin(); it != selectionPopulations.end(); ++it) {
-//         max += 1 / it->first;
-//     }
-    
-//     for (auto& chromosome : selectionPopulations) {
-//         float randomNum = generate_random_float(0, max);
-//         if (randomNum <= m_crossoverParameter) {
-//             result.push_back(&chromosome);
-//         }
-//     }
-    
-//     return result;
-// }
-
 vector<pair<float, vector<int>>*> HeuristicAlgorithm::select_parents(vector<pair<float, vector<int>>>& selectionPopulations) {
     vector<pair<float, vector<int>>*> result;
 
@@ -423,15 +388,22 @@ vector<pair<float, vector<int>>*> HeuristicAlgorithm::select_parents(vector<pair
     return result;
 }
 
- pair<float, vector<int>> HeuristicAlgorithm::find_best_fitness(const vector<pair<float, vector<int>>>& populations) {
-     for (const auto& it : populations) {
-         if (it.first < m_bestSolution.first || m_bestSolution.first == 0) {
-             m_bestSolution = it;
-         }
-     }
-     return m_bestSolution;
- }
-
+pair<float, vector<int>> HeuristicAlgorithm::find_best_fitness(const vector<pair<float, vector<int>>>& populations) {
+    for (const auto& it : populations) {
+        if (it.first < m_bestSolution.first || m_bestSolution.first == 0) {
+            m_bestSolution = it;
+            vector<float> info = {m_selectionPressure,
+                                  m_crossoverParameter,
+                                  m_mutationParameter,
+                                  float(m_population),
+                                  m_eliteProportion,
+                                  float(m_currGeneration),
+                                  0.000};
+            save_best_solution(info);
+        }
+    }
+    return m_bestSolution;
+}
 
 void HeuristicAlgorithm::generate_cities() {
     FileStream file;
@@ -441,8 +413,8 @@ void HeuristicAlgorithm::generate_cities() {
 
 void HeuristicAlgorithm::save_best_solution(const vector<float>& info) {    
     FileStream file;
-    m_savePath = m_savePath + std::to_string(m_bestSolution.first) + ".txt";
-    file.write(m_savePath, m_bestSolution, info);
+    string savePath = m_savePath + m_saveFile;
+    file.write(savePath, m_bestSolution, info);
 }
 
 int HeuristicAlgorithm::generate_random_int(const int& min, const int& max) {
