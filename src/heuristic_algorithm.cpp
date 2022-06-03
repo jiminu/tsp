@@ -15,11 +15,9 @@ using std::multimap;
 using std::next_permutation;
 
 HeuristicAlgorithm::HeuristicAlgorithm() {
-    clock_t start, end;
-    float result;
-    
     start = clock();
     generate_cities();
+    // generate_distance_matrix();
     vector<pair<float, vector<int>>> populations = initialize_chromosome(m_population);
     for (int i = 0; i < m_generation; ++i) {
         populations = selection(populations);
@@ -44,6 +42,7 @@ HeuristicAlgorithm::HeuristicAlgorithm() {
     }
     std::cout << m_bestSolution.second[0] << std::endl;
     std::cout << "runtime : " << result / CLOCKS_PER_SEC << "s" << std::endl;
+    std::cout << "best solution : " << m_bestSolution.first << std::endl;
     save_best_solution(info);
     
     for (auto it : populations) {
@@ -209,7 +208,11 @@ void HeuristicAlgorithm::mutation(pair<float, vector<int>>& offspring) {
     }
     else if (m_mutation == "displacement") {
         displacement_mutation(offspring);
-    }    
+    }
+    else {
+        std::cout << "wrong mutation parameter" << std::endl;
+        exit(0);
+    }
 }
 
 void HeuristicAlgorithm::inversion_mutation(pair<float, vector<int>>& crossoverPopulations) {
@@ -257,7 +260,7 @@ void HeuristicAlgorithm::displacement_mutation(pair<float, vector<int>>& crossov
 vector<pair<float, vector<int>>> HeuristicAlgorithm::initialize_chromosome(const int& population) {
     vector<pair<float, vector<int>>> chromosomes;
     vector<int> chromosome;
-    for (int i = 0; i < m_cities.size(); ++i) {
+    for (int i = 0; i < m_distanceMatrix.size(); ++i) {
         chromosome.push_back(i);
     }
     
@@ -337,13 +340,23 @@ vector<pair<float, vector<int>>> HeuristicAlgorithm::evaluation(const vector<vec
 
 float HeuristicAlgorithm::evaluate_function(const vector<int>& population) {
     float result = 0;
+    // for (int chromosome = 0; chromosome < population.size(); ++chromosome) {
+    //     if (chromosome != population.size() - 1) {
+    //         result += m_cities[population[chromosome]].distance_to(m_cities[population[chromosome + 1]]);
+    //     }
+
+    //     else {
+    //         result += m_cities[population[chromosome]].distance_to(m_cities[population[0]]);
+    //     }
+    // };
+    
     for (int chromosome = 0; chromosome < population.size(); ++chromosome) {
         if (chromosome != population.size() - 1) {
-            result += m_cities[population[chromosome]].distance_to(m_cities[population[chromosome + 1]]);
+            result += m_distanceMatrix[population[chromosome]][population[chromosome+1]];
         }
 
         else {
-            result += m_cities[population[chromosome]].distance_to(m_cities[population[0]]);
+            result += m_distanceMatrix[population[chromosome]][population[0]];
         }
     };
 
@@ -392,13 +405,15 @@ pair<float, vector<int>> HeuristicAlgorithm::find_best_fitness(const vector<pair
     for (const auto& it : populations) {
         if (it.first < m_bestSolution.first || m_bestSolution.first == 0) {
             m_bestSolution = it;
+            end = clock();
+            result = end - start;
             vector<float> info = {m_selectionPressure,
                                   m_crossoverParameter,
                                   m_mutationParameter,
                                   float(m_population),
                                   m_eliteProportion,
                                   float(m_currGeneration),
-                                  0.000};
+                                  result / CLOCKS_PER_SEC};
             save_best_solution(info);
         }
     }
@@ -409,7 +424,21 @@ void HeuristicAlgorithm::generate_cities() {
     FileStream file;
     file.read(m_tspFile);
     m_cities = file.get_cities();
+    for (int i = 0; i < 280; ++i) {
+        vector<float> tempVector;
+        for (int j = 0; j < 280; ++j) {
+            tempVector.push_back(m_cities[i].distance_to(m_cities[j]));
+        }
+        m_distanceMatrix.push_back(tempVector);
+    }
 }
+
+void HeuristicAlgorithm::generate_distance_matrix() {
+    FileStream file;
+    file.read_distance_matrix(m_distanceMatrixFile);
+    m_distanceMatrix = file.get_distnance_matrix();
+}
+
 
 void HeuristicAlgorithm::save_best_solution(const vector<float>& info) {    
     FileStream file;

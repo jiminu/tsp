@@ -13,25 +13,30 @@ class HeuristicAlgorithm {
     private:
         
         const float m_selectionPressure  = 3;
+        const float m_eliteProportion    = 0.2;
         const float m_crossoverParameter = 0.7;
         const float m_mutationParameter  = 0.2;
-        const int m_population           = 100;
-        const int m_generation           = 100000;
-        const float m_eliteProportion    = 0.2;
+        const int m_population           = 200;
+        const int m_generation           = 1000000;
         const string m_mutation          = "inversion";
-                
+        
+        vector<vector<float>> m_distanceMatrix;
 
         string m_tspFile  = "./../data/tsp_data.txt";
+        string m_distanceMatrixFile  = "./../data/dist.txt";
+        
         string m_savePath = "./../data/";
         string m_saveFile = m_mutation + ".txt";
     
 
-    
         vector<City> m_cities;
         pair<float, vector<int>> m_bestSolution = {0, {}};
         int m_currGeneration = 0;
 
+        clock_t start, end;
+        float result;
     public:
+    
         HeuristicAlgorithm();  
         ~HeuristicAlgorithm();  
         
@@ -58,6 +63,7 @@ class HeuristicAlgorithm {
         pair<float, vector<int>> find_best_fitness(const vector<pair<float, vector<int>>>& populations);
 
         void generate_cities();
+        void generate_distance_matrix();
         int generate_random_int(const int& min, const int& max);
         float generate_random_float(const float& min, const float& max);
 };

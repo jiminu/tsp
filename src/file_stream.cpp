@@ -30,6 +30,34 @@ void FileStream::read(const string& fileName) {
     }
 }
 
+void FileStream::read_distance_matrix(const string& fileName) {
+    std::ifstream file(fileName);
+    int run = 0;
+    string line;
+    
+    if(file) {
+        while(std::getline(file, line)) {
+            // if (file.eof()) break;
+            if (run < 1) {
+                ++run;
+                continue;
+            }
+            std::istringstream ss(line);
+            string stringBuffer;
+            vector<float> tempVector;
+            while (getline(ss, stringBuffer, ',')) {
+                tempVector.push_back(std::stof(stringBuffer));
+            }
+            m_distanceMatrix.push_back(tempVector);
+        }
+        file.close();
+    }
+    else {
+        std::cout << "file open fail" << std::endl;
+        exit(0);
+    }
+}
+
 void FileStream::write(const string& fileName, const pair<float, vector<int>>& bestSolution, const vector<float>& info) {
     std::ofstream fout(fileName);
     // for (auto it = cities.begin(); it != cities.end(); it++) {
@@ -61,4 +89,8 @@ City FileStream::split_xy(const string& str) {
 
 vector<City>& FileStream::get_cities() {
     return m_citiesVector;
+}
+
+vector<vector<float>>& FileStream::get_distnance_matrix() {
+    return m_distanceMatrix;
 }

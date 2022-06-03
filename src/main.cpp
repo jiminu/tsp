@@ -6,5 +6,5 @@ int main(int, char**) {
     HeuristicAlgorithm heuristic;
     
     
-    std::cout << "Hello, world!" << std::endl;
+    // std::cout << "Hello, world!" << std::endl;
 }
