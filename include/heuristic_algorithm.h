@@ -1,7 +1,9 @@
 #pragma once
 
+#include<string>
 #include<vector>
 #include<map>
+#include<ctime>
 #include "city.h"
 
 using std::vector;
@@ -23,8 +25,8 @@ class HeuristicAlgorithm {
         
         vector<vector<float>> m_distanceMatrix;
 
-        string m_tspFile  = "./../data/tsp_data.txt";
-        string m_distanceMatrixFile  = "./../data/dist.txt";
+        string m_tspFile  = "./../../data/tsp_data.txt";
+        string m_distanceMatrixFile  = "./../../data/dist.txt";
         
         string m_savePath = "./../data/";
         string m_saveFile = m_mutation + ".txt";
