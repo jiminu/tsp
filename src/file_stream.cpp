@@ -19,7 +19,6 @@ void FileStream::read(const string& fileName) {
                 ++run;
                 continue;
             }
-            // std::cout << line << std::endl;
             m_citiesVector.push_back(split_xy(line));
         }
         file.close();
@@ -60,9 +59,7 @@ void FileStream::read_distance_matrix(const string& fileName) {
 
 void FileStream::write(const string& fileName, const pair<float, vector<int>>& bestSolution, const vector<float>& info) {
     std::ofstream fout(fileName);
-    // for (auto it = cities.begin(); it != cities.end(); it++) {
-    //     fout << it->x << ", " << it->y << "\n";
-    // }
+
     fout << "fitness : " << bestSolution.first << "\n";
     fout << "selection pressure : " << info[0] << "\n";
     fout << "crossover parameter : " << info[1] << "\n";

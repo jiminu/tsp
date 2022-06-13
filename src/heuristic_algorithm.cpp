@@ -3,16 +3,10 @@
 #include <time.h>
 
 #include <algorithm>
-#include <fstream>
-#include <iostream>
-#include <map>
 #include <random>
-#include <sstream>
+#include <iostream>
 
 #include "file_stream.h"
-
-using std::multimap;
-using std::next_permutation;
 
 HeuristicAlgorithm::HeuristicAlgorithm() {
     start = clock();
@@ -44,16 +38,6 @@ HeuristicAlgorithm::HeuristicAlgorithm() {
     std::cout << "runtime : " << result / CLOCKS_PER_SEC << "s" << std::endl;
     std::cout << "best solution : " << m_bestSolution.first << std::endl;
     save_best_solution(info);
-    
-    for (auto it : populations) {
-        map<int, int> test;
-        for (auto pop : it.second) {
-            auto check = test.insert({pop, 0});
-            if (!check.second) {
-                std::cout << "same!!!!! : " << pop << std::endl;
-            }
-        }
-    }
 }
 
 HeuristicAlgorithm::~HeuristicAlgorithm() {
