@@ -19,14 +19,14 @@ class HeuristicAlgorithm {
         const float m_eliteProportion    = 0.2;
         const float m_crossoverParameter = 0.7;
         const float m_mutationParameter  = 0.2;
-        const int m_population           = 100;
-        const int m_generation           = 10000;
+        const int m_population           = 500;
+        const int m_generation           = 2000;
         const string m_mutation          = "inversion";
         
         vector<vector<float>> m_distanceMatrix;
 
-        string m_tspFile  = "./../../data/tsp_data.txt";
-        string m_distanceMatrixFile  = "./../../data/dist.txt";
+        string m_tspFile  = "./../data/tsp_data.txt";
+        string m_distanceMatrixFile  = "./../data/dist.txt";
         
         string m_savePath = "./../data/";
         string m_saveFile = m_mutation + ".txt";
